@@ -54,8 +54,10 @@ const NAME = 'smoothscroll';
 const DATA_KEY = `wp.${NAME}`;
 const EVENT_KEY = `.${DATA_KEY}`;
 const EVENT_SCROLL = `scroll${EVENT_KEY}`;
-const EVENT_CLICK = `click${EVENT_KEY}`;
 const EVENT_WHEEL = `wheel${EVENT_KEY}`;
+const EVENT_RESIZE = `resize${EVENT_KEY}`;
+const EVENT_LOAD = `load${EVENT_KEY}`;
+const EVENT_CLICK = `click${EVENT_KEY}`;
 const EVENT_KEYDOWN = `keydown${EVENT_KEY}`;
 const EVENT_MOUSEDOWN = `mousedown${EVENT_KEY}`;
 const DefaultType = {
@@ -252,11 +254,13 @@ const Default = {
       });
 
       // Add resize listener to clear caches when window size changes
-      Events.on(window, 'resize', this._refreshSize);
+      Events.on(window, EVENT_RESIZE, this._refreshSize);
     }
     _handleClick(e) {
       const link = e.target.closest('a[href^="#"]');
-      if (!link) return;
+      if (!link || link.getAttribute('href') === '#') {
+        return;
+      }
       e.preventDefault();
       this.scrollTo(link.getAttribute('href'));
     }
@@ -824,8 +828,8 @@ const Default = {
       Events.off(document, EVENT_CLICK, this._clickHandler);
       Events.off(document, EVENT_KEYDOWN, this._keydownHandler);
       Events.off(document, EVENT_MOUSEDOWN, this._mousedownHandler);
-      Events.off(window, 'resize', this._refreshSize);
-      Events.off(window, 'load', this._initSmoothScroll);
+      Events.off(window, EVENT_RESIZE, this._refreshSize);
+      Events.off(window, EVENT_LOAD, this._initSmoothScroll);
       window.removeEventListener('wheel', this._wheelHandler, {
         passive: false,
         capture: true
