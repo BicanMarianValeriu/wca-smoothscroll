@@ -99,13 +99,18 @@ export default (function (wecodeart) {
         // Public
         scrollTo(target, options = {}) {
             const targetElement = getElement(target);
-            if (!targetElement) return;
+            
+            if (!targetElement) {
+                console.warn('SmoothScroll: Target element not found:', target);
+                return;
+            }
 
             const config = { ...this._config, ...options };
-            const targetPosition = targetElement.offsetTop - config.offset;
+            const scrollRoot = this._getScrollRoot();
+            const targetPosition = targetElement.offsetTop - config.offset; 
 
-            if (config.behavior === 'smooth') {
-                this._smoothScrollTo(targetPosition);
+            if (config.behavior === 'smooth') { 
+                this._smoothScrollTo(targetPosition, scrollRoot);
             } else {
                 window.scrollTo({
                     top: targetPosition,
@@ -229,7 +234,7 @@ export default (function (wecodeart) {
             if (!link || link.getAttribute('href') === '#') {
                 return;
             }
-
+            
             e.preventDefault();
             this.scrollTo(link.getAttribute('href'));
         }
@@ -629,8 +634,10 @@ export default (function (wecodeart) {
             this._pending = true;
         }
 
-        _smoothScrollTo(targetPosition) {
-            this._scrollArray(document.body, 0, targetPosition - window.pageYOffset);
+        _smoothScrollTo(targetPosition, scrollRoot) {
+            const currentScroll = scrollRoot === document.documentElement ? 
+                window.pageYOffset : scrollRoot.scrollTop;
+            this._scrollArray(scrollRoot, 0, targetPosition - currentScroll);
         }
 
         _directionCheck(x, y) {
