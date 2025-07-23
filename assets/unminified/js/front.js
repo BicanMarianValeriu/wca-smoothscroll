@@ -102,6 +102,7 @@ const Default = {
   const {
     Component,
     Events,
+    Selector,
     fn: {
       getElement,
       getOptions
@@ -130,7 +131,9 @@ const Default = {
     }
 
     // Public
-    scrollTo(target, options = {}) {
+    scrollTo(target, options = {
+      offset: Selector.findOne('.wp-site-header.is-position-sticky')?.offsetHeight || 0
+    }) {
       const targetElement = getElement(target);
       if (!targetElement) {
         console.warn('SmoothScroll: Target element not found:', target);

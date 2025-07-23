@@ -69,7 +69,7 @@ const Default = {
 
 export default (function (wecodeart) {
 
-    const { Component, Events, fn: { getElement, getOptions } } = wecodeart;
+    const { Component, Events, Selector, fn: { getElement, getOptions } } = wecodeart;
 
     /**
      * Class definition
@@ -97,19 +97,21 @@ export default (function (wecodeart) {
         }
 
         // Public
-        scrollTo(target, options = {}) {
+        scrollTo(target, options = {
+            offset: Selector.findOne('.wp-site-header.is-position-sticky')?.offsetHeight || 0
+        }) {
             const targetElement = getElement(target);
-            
+
             if (!targetElement) {
                 console.warn('SmoothScroll: Target element not found:', target);
                 return;
             }
 
             const config = { ...this._config, ...options };
-            const scrollRoot = this._getScrollRoot();
-            const targetPosition = targetElement.offsetTop - config.offset; 
+            const scrollRoot = this._getScrollRoot(); 
+            const targetPosition = targetElement.offsetTop - config.offset;
 
-            if (config.behavior === 'smooth') { 
+            if (config.behavior === 'smooth') {
                 this._smoothScrollTo(targetPosition, scrollRoot);
             } else {
                 window.scrollTo({
@@ -182,7 +184,7 @@ export default (function (wecodeart) {
             }
         }
 
-        _setupVariables() { 
+        _setupVariables() {
             this._isFrame = false;
             this._direction = { x: 0, y: 0 };
             this._initDone = false;
@@ -195,7 +197,7 @@ export default (function (wecodeart) {
             this._que = [];
             this._pending = false;
             this._lastScroll = Date.now();
-            
+
             // Use WeakMap for better memory management - allows garbage collection
             this._cacheX = new WeakMap();
             this._cacheY = new WeakMap();
@@ -224,7 +226,7 @@ export default (function (wecodeart) {
 
             // Use native addEventListener for wheel event to support passive: false
             window.addEventListener('wheel', this._wheelHandler, { passive: false, capture: true });
-            
+
             // Add resize listener to clear caches when window size changes
             Events.on(window, EVENT_RESIZE, this._refreshSize);
         }
@@ -234,7 +236,7 @@ export default (function (wecodeart) {
             if (!link || link.getAttribute('href') === '#') {
                 return;
             }
-            
+
             e.preventDefault();
             this.scrollTo(link.getAttribute('href'));
         }
@@ -635,7 +637,7 @@ export default (function (wecodeart) {
         }
 
         _smoothScrollTo(targetPosition, scrollRoot) {
-            const currentScroll = scrollRoot === document.documentElement ? 
+            const currentScroll = scrollRoot === document.documentElement ?
                 window.pageYOffset : scrollRoot.scrollTop;
             this._scrollArray(scrollRoot, 0, targetPosition - currentScroll);
         }
@@ -822,7 +824,7 @@ export default (function (wecodeart) {
             const browserInfo = this._detectBrowser(userAgent, platform);
 
             return this._isBrowserSupported(browserInfo);
-        } 
+        }
 
         _isBrowserSupported(browserInfo) {
             const allowedBrowsers = ['Mobile', 'Edge', 'Chrome', 'Safari', 'Firefox', 'IEWin7', 'other'];
